@@ -15,6 +15,8 @@ class Node:
         else:
             self.is_complete = False
         self.height = height
+        self.is_finished = False
+        self.children_counter = 0
 
     def update_node_val(self):
         if self.left and self.right:
@@ -26,7 +28,8 @@ class Node:
     def upgrade_parents(self):
         if self:
             self.update_node_val()
-            self.parent.update_node_val()
+            if self.parent:
+                self.parent.upgrade_parents()
 
     def is_leaf(self):
         if not self.left and not self.right:
@@ -37,7 +40,6 @@ class Node:
     def print_node(self):
         #print(self.val.hexdigest())
         print(self.val)
-
 
     def add_node(self, val):
         # case leaf need to be added beside
@@ -54,11 +56,12 @@ class Node:
                 new_parent.is_complete = True
             else:
                 new_parent.is_complete = False
+            new_parent.children_counter = new_parent.left.children_counter + new_parent.left.children_counter + 2
             # return the new root
             return new_parent
         # case leaf need to be added below
         else:
-            insert_here = find_where_insert(self)
+            insert_here = find_where_insert(self.right)
             if not insert_here:
                 insert_here = self
             right_node = Node(val, insert_here.height - 1)
@@ -81,6 +84,7 @@ class Node:
             insert_here.down_grade_children()
             # return the root
             new_parent.upgrade_parents()
+            new_parent.children_counter = new_parent.left.children_counter + new_parent.left.children_counter + 2
             return self
 
     # down grade all the children below change is_complete if after downgrade sub-tree became complete
@@ -94,7 +98,6 @@ class Node:
         if self.right:
             self.right.height = self.height - 1
             ri = self.right.down_grade_children()
-        self.is_complete = le and ri
         return le and ri
 
     def update_is_complete(self):
@@ -112,30 +115,37 @@ class Node:
             self.is_complete = True
         return le and ri
 
+
 # left order scanning to know where to insert the new node
 def find_where_insert(node):
     if node.is_leaf():
-        if not node.is_complete:
-            return node
+        if node.parent.left.is_leaf():
+            tmp_node = node
+            while tmp_node.parent:
+                if not tmp_node.parent.is_finished:
+                    return tmp_node.parent
+                tmp_node = tmp_node.parent
         else:
-            return None
-    if node.is_complete:
-        return None
-    left_ret = find_where_insert(node.left)
-    if not left_ret:
-        right_ret = find_where_insert(node.right)
-        if not right_ret:
             return node
-        else:
-            return right_ret
     else:
-        return left_ret
+        return find_where_insert(node.right)
+
+
+def update_is_finished(node):
+    if node.left:
+        update_is_finished(node.left)
+    if node.right:
+        update_is_finished(node.right)
+    if node.children_counter == pow(node.children_counter, node.height + 1) - 2:
+        node.is_finished = True
+
 
 def just_test_print(node):
     if node:
         node.print_node()
         just_test_print(node.left)
         just_test_print(node.right)
+
 
 if __name__ == '__main__':
     isTreeInit = False
@@ -160,8 +170,43 @@ if __name__ == '__main__':
             elif extra is not None:
                 root = root.add_node(extra)
             root.update_is_complete()
-            if root.is_complete:
-                a = 7
-
+            update_is_finished(root)
         if command == '2':
             just_test_print(root)
+
+        if command == '3':
+            root = Node('a', 0)
+            root = root.add_node("b")
+            root.update_is_complete()
+            root = root.add_node("c")
+            root.update_is_complete()
+            root = root.add_node("d")
+            root.update_is_complete()
+            root = root.add_node("e")
+            root.update_is_complete()
+            root = root.add_node("f")
+            root.update_is_complete()
+            root = root.add_node("g")
+            root.update_is_complete()
+            root = root.add_node("h")
+            root.update_is_complete()
+            root = root.add_node("i")
+            root.update_is_complete()
+            root = root.add_node("j")
+            root.update_is_complete()
+            root = root.add_node("k")
+            root.update_is_complete()
+            root = root.add_node("l")
+            root.update_is_complete()
+            root = root.add_node("m")
+            root.update_is_complete()
+            root = root.add_node("n")
+            update_is_finished(root)
+            root = root.add_node("o")
+            root.update_is_complete()
+            root = root.add_node("p")
+            root.update_is_complete()
+            isTreeInit = True
+
+
+
