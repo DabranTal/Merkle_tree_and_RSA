@@ -117,6 +117,7 @@ def get_leaves_array(current_node):
 def get_proof_of_inclusion(current_node):
     proof_of_inclusion.append(current_node)
     parent_node = current_node.parent
+    # case we already have brother to add the inclusion
     if parent_node.parent:
         if parent_node.parent.left == parent_node:
             if parent_node.parent.right:
