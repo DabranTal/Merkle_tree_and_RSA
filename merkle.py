@@ -113,16 +113,16 @@ def get_leaves_array(current_node):
 
 
 # insert leaves to array
-def get_proof_of_inclusion(current_node):
-    proof_of_inclusion.append(current_node)
+def get_proof_of_inclusion(current_node, direct):
+    proof_of_inclusion.append((direct, current_node))
     parent_node = current_node.parent
     # case we already have brother to add the inclusion
     if parent_node.parent:
         if parent_node.parent.left == parent_node:
             if parent_node.parent.right:
-                get_proof_of_inclusion(parent_node.parent.right)
+                get_proof_of_inclusion(parent_node.parent.right, '1')
         else:
-            get_proof_of_inclusion(parent_node.parent.left)
+            get_proof_of_inclusion(parent_node.parent.left, '0')
 
 
 if __name__ == '__main__':
@@ -165,11 +165,44 @@ if __name__ == '__main__':
                     if leaf.parent:
                         if leaf.parent.left == leaf:
                             if leaf.parent.right:
-                                get_proof_of_inclusion(leaf.parent.right)
+                                get_proof_of_inclusion(leaf.parent.right, '1')
                         else:
-                            get_proof_of_inclusion(leaf.parent.left)
+                            get_proof_of_inclusion(leaf.parent.left, '0')
                     root.print_node()
                     for s in proof_of_inclusion:
-                        s.print_node()
+                        print(s[0], end='')
+                        s[1].print_node()
                 leaves_array = []
                 proof_of_inclusion = []
+
+        # -4- Check Proof of Inclusion
+        if command == '4':
+            if extra.__contains__(" "):
+                result, rest = extra.split(" ", 1)
+                if result:
+                    result = hashlib.sha256(result.encode('utf-8'))
+                    if rest.__contains__(" "):
+                        # extract root from solution
+                        check_root, rest = rest.split(" ", 1)
+                        if rest.__contains__(" "):
+                            # extract evidence
+                            inc, rest = rest.split(" ", 1)
+                            while inc:
+                                if inc[0] == '1':
+                                    inc = inc[1:len(inc)]
+                                    tmp_string = (result.hexdigest() + inc)
+                                else:
+                                    inc = inc[1:len(inc)]
+                                    tmp_string = (inc + result.hexdigest())
+                                result = hashlib.sha256(tmp_string.encode('utf-8'))
+                                if rest is None:
+                                    inc = None
+                                elif rest.__contains__(" "):
+                                    inc, rest = rest.split(" ", 1)
+                                else:
+                                    inc = rest
+                                    rest = None
+                            if result.hexdigest() == check_root:
+                                print(True)
+                            else:
+                                print(False)
