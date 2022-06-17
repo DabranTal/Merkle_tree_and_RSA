@@ -1,10 +1,11 @@
 import hashlib
 
+leaves_array = []
+proof_of_inclusion = []
 
 class Node:
     def __init__(self, val, height):
         self.val = hashlib.sha256(val.encode('utf-8'))
-        # self.val = val
         self.parent = None
         self.left = None
         self.right = None
@@ -57,6 +58,8 @@ class Node:
         print(self.val.hexdigest())
         #print(self.val)
 
+
+# insert node where he dont pain the subs-tree's completeness
 def where_insert(node):
     if node.left and node.right:
         if node.left.children_counter == node.right.children_counter:
@@ -66,8 +69,9 @@ def where_insert(node):
     return where_insert(node.right)
 
 
-def add_node(root, val):
-    insert_here = where_insert(root)
+# insert node to tree
+def add_node(current_root, val):
+    insert_here = where_insert(current_root)
     # case we build new level
     if insert_here.is_finished:
         right_node = Node(val, insert_here.height)
@@ -91,19 +95,34 @@ def add_node(root, val):
     # update new parent children
     new_parent.left = left_node
     new_parent.right = right_node
-    root.update_is_finished()
+    current_root.update_is_finished()
     new_parent.upgrade_parents()
     if new_parent.parent:
-        return root
+        return current_root
     else:
         return new_parent
 
 
-def just_test_print(node):
-    if node:
-        node.print_node()
-        just_test_print(node.left)
-        just_test_print(node.right)
+# insert leaves to array
+def get_leaves_array(current_node):
+    if current_node.is_leaf():
+        leaves_array.append(current_node)
+    if current_node.left:
+        get_leaves_array(current_node.left)
+    if current_node.right:
+        get_leaves_array(current_node.right)
+
+
+# insert leaves to array
+def get_proof_of_inclusion(current_node):
+    proof_of_inclusion.append(current_node)
+    parent_node = current_node.parent
+    if parent_node.parent:
+        if parent_node.parent.left == parent_node:
+            if parent_node.parent.right:
+                get_proof_of_inclusion(parent_node.parent.right)
+        else:
+            get_proof_of_inclusion(parent_node.parent.left)
 
 
 if __name__ == '__main__':
@@ -120,6 +139,7 @@ if __name__ == '__main__':
             command = value
             extra = None
 
+        # -1- Add node
         if command == '1':
             # check if tree initialized
             if not isTreeInit and extra is not None:
@@ -129,6 +149,27 @@ if __name__ == '__main__':
             elif extra is not None:
                 root = add_node(root, extra)
             root.update_is_finished()
-        if command == '2':
-            just_test_print(root)
 
+        # -2- Print root
+        if command == '2':
+            if root:
+                root.print_node()
+
+        # -3- Proof of Inclusion
+        if command == '3':
+            if extra:
+                get_leaves_array(root)
+                if leaves_array[int(extra)]:
+                    leaf = leaves_array[int(extra)]
+                    # proof_of_inclusion.append(leaf)
+                    if leaf.parent:
+                        if leaf.parent.left == leaf:
+                            if leaf.parent.right:
+                                get_proof_of_inclusion(leaf.parent.right)
+                        else:
+                            get_proof_of_inclusion(leaf.parent.left)
+                    root.print_node()
+                    for s in proof_of_inclusion:
+                        s.print_node()
+                leaves_array = []
+                proof_of_inclusion = []
