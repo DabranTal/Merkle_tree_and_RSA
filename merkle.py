@@ -56,7 +56,6 @@ class Node:
 
     def print_node(self):
         print(self.val.hexdigest())
-        #print(self.val)
 
 
 # insert node where he dont pain the subs-tree's completeness
