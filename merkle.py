@@ -153,9 +153,9 @@ def signatureOnRoot(key, current_root):
     root_bytes = root_val.encode('utf-8')
     realSignature = key.sign(root_bytes, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
                          hashes.SHA256())
-    signature = base64.encodebytes(key.sign(root_bytes, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
+    signature = base64.b64encode(key.sign(root_bytes, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
                          hashes.SHA256())).decode()
-    print(signature.replace("\n", ""))
+    print(signature)
 
 
 def verification(key, signatureInBytes, message):
