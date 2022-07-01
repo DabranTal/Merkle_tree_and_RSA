@@ -1,4 +1,3 @@
-# Ido Tavron, 316222512, Tal Dabran, 316040898
 import hashlib
 import base64
 import textwrap
